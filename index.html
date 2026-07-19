@@ -87,6 +87,21 @@ const input = document.getElementById('cmd');
 const history = [];
 let histIdx = -1;
 
+// URL del CV (reutilizable)
+const CV_URL = 'https://raw.githubusercontent.com/Sergius-DS/Sergio_Rivera/main/Sergio_F_Rivera_B.pdf';
+const CV_FILENAME = 'Sergio_F_Rivera_B.pdf';
+
+// Función helper para disparar descarga automática
+function triggerDownload(url, filename) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 // Paleta semántica para colorear
 const color = {
   g: '#34d399', b: '#60a5fa', y: '#fbbf24', r: '#f87171', w: '#e5e7eb', d: '#9ca3af'
@@ -107,6 +122,7 @@ ${c('─────────────────────────
   ${c('philosophy', color.b)} Principios de ingeniería
   ${c('contact', color.b)}    Canales de contacto
   ${c('install', color.b)}    Cómo integrarme al equipo
+  ${c('wget cv', color.b)}    Descargar CV automáticamente
   ${c('clear', color.b)}      Limpiar terminal
   ${c('source', color.b)}     Ver código fuente
 
@@ -252,6 +268,23 @@ Repositorio: ${c('github.com/Sergius-DS/Sergio_Rivera', color.b)}`,
 
   clear: () => { output.innerHTML = ''; return null; },
 
+  'wget cv': () => {
+    // Dispara la descarga automática tras un breve delay para dar feedback visual
+    setTimeout(() => triggerDownload(CV_URL, CV_FILENAME), 600);
+
+    return `
+${c('📥 INICIANDO DESCARGA...', color.g)}
+${c('──────────────────────────────', color.d)}
+${c('$', color.d)} wget ${CV_URL}
+
+${c('Connecting to raw.githubusercontent.com...', color.y)}
+${c('✓', color.g)} TLS handshake completo
+${c('✓', color.g)} HTTP/2 200 OK
+${c('✓', color.g)} Guardando: ${c(CV_FILENAME, color.b)}
+
+${c('Revisa tu carpeta de descargas.', color.y)}`;
+  },
+
   sudo: () => `
 ${c('❌ Permission denied', color.r)}
 Nice try. Este sistema es read-only.`,
@@ -262,12 +295,14 @@ ${c('drwxr-xr-x', color.d)} benchmarks/
 ${c('-rw-r--r--', color.d)} cv_sergio_rivera.pdf
 ${c('-rw-r--r--', color.d)} resnet50_clinical_benchmark.json`,
 
-  cat: () => `${c('Usage:', color.y)} cat [filename]\nPrueba: ${c('cat cv_sergio_rivera.pdf', color.b)} (próximamente)`,
+  cat: () => `${c('Usage:', color.y)} cat [filename]\nPrueba: ${c('cat cv_sergio_rivera.pdf', color.b)}`,
 
   'cat cv_sergio_rivera.pdf': () => `
 ${c('📄 cv_sergio_rivera.pdf', color.g)}
 ${c('──────────────────────────────', color.d)}
-Descarga directa: ${c('[https://github.com/Sergius-DS/Sergio_Rivera/blob/main/Sergio_F_Rivera_B.pdf]', color.b)}
+Descarga directa (click): <a href="${CV_URL}" download="${CV_FILENAME}" style="color:${color.b}; text-decoration: underline; cursor: pointer;">${CV_FILENAME}</a>
+
+O usa: ${c('wget cv', color.g)} para descarga automática.
 
 Contenido: ${c('1 página', color.y)} | ${c('Métricas reales', color.y)} | ${c('Sin buzzwords vacías', color.y)}`,
 
