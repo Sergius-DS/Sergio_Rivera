@@ -1,17 +1,18 @@
 # Sergio Rivera — ML Systems Engineer
 
-> Los modelos mueren en Jupyter. Yo construyo la infraestructura para que sobrevivan en el metal.
+> Models die in Jupyter Notebooks. I build the infrastructure so they can survive in the metal.
 
-Este no es un portafolio tradicional — es una **terminal interactiva** que refleja mi forma de trabajar: métricas reales, código bare-metal, y cero buzzwords vacías.
+This isn’t your typical portfolio — it’s an **interactive terminal** that shows how I work: real metrics, bare-metal code, and zero empty buzzwords.
 
-Escribe `help` dentro de la terminal para explorar mi stack, benchmarks de producción, y background en redes críticas.
+Type `help` in the terminal to check out my tech stack, production benchmarks, and background in critical networks.
 
-# <h1 align="center">Preview de Terminal Interactiva</h1>
+
+# <h1 align="center">Interactive Terminal Preview</h1>
 <p align="center">
   <img src="preview.png"  height="400">
 <p align="center">
 
 ### 🚀 System Access
-Para acceder al perfil interactivo, ejecuta el siguiente comando:
+To access the interactive profile, just run this command:
 
 > **[> ./run-portfolio.sh](https://sergius-ds.github.io/Sergio_Rivera/)**
