@@ -224,10 +224,7 @@ ${c('─────────────────────────
 
   Email:    ${c('[sergioskhy@gmail.com]', color.b)}
   GitHub:   ${c('[github.com/Sergius-DS]', color.b)}
-  LinkedIn: ${c('[linkedin.com/in/sergio-francisco-rivera-bustamante]', color.b)}
-
-${c('Para una charla técnica:', color.y)}
-  $ ${c('run "schedule-interview"', color.g)}`,
+  LinkedIn: ${c('[linkedin.com/in/sergio-francisco-rivera-bustamante]', color.b)}`,
 
   install: () => `
 ${c('💻 INSTALACIÓN', color.g)}
@@ -244,7 +241,6 @@ ${c('📄 CÓDIGO FUENTE', color.g)}
 ${c('──────────────────────────────', color.d)}
 
 Esta terminal es ${c('100% Vanilla JS', color.y)} — cero dependencias.
-Escrita a mano para demostrar que entiendo:
 
   • Performance del DOM
   • Sin runtime overhead de frameworks
@@ -255,16 +251,6 @@ El equivalente web a un ${c('binario compilado en Rust', color.b)}.
 Repositorio: ${c('github.com/Sergius-DS/Sergio_Rivera', color.b)}`,
 
   clear: () => { output.innerHTML = ''; return null; },
-
-  'schedule-interview': () => `
-${c('🗓️ INICIANDO HANDSHAKE...', color.g)}
-${c('──────────────────────────────', color.d)}
-
-Conectando con la agenda de Sergio...
-${c('✓', color.g)} Calendly abierto.
-Elige un slot de 30 min para charla técnica.
-
-${c('→', color.b)} [calendly.com/tu-usuario]`,
 
   sudo: () => `
 ${c('❌ Permission denied', color.r)}
