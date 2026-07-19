@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sergio Rivera | ML-Systems-Engineer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0e14;
+    color: #b3b1ad;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    padding: 20px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  #terminal {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #010306;
+    border: 1px solid #1f2329;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 30px rgba(52, 211, 153, 0.08);
+  }
+  .header {
+    color: #34d399;
+    border-bottom: 1px solid #1f2329;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+  }
+  .prompt { color: #34d399; }
+  .user { color: #f59e0b; }
+  .path { color: #60a5fa; }
+  #output { margin-bottom: 10px; }
+  .line { white-space: pre-wrap; margin-bottom: 8px; word-wrap: break-word; }
+  .cmd-echo { color: #e5e7eb; }
+  .error { color: #f87171; }
+  .highlight { color: #34d399; font-weight: bold; }
+  .info { color: #60a5fa; }
+  .warn { color: #fbbf24; }
+  .input-line { display: flex; align-items: center; }
+  #cmd {
+    background: transparent;
+    border: none;
+    color: #e5e7eb;
+    font-family: inherit;
+    font-size: 1rem;
+    outline: none;
+    flex: 1;
+    margin-left: 5px;
+    caret-color: #34d399;
+  }
+  .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .tree { color: #9ca3af; }
+  .metric-num { color: #fbbf24; font-weight: bold; }
+  @media (max-width: 600px) {
+    body { padding: 10px; font-size: 0.85rem; }
+    #terminal { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="terminal">
+  <div class="header">
+    <span class="info">sergio@ml-systems</span>
+    <span style="color:#9ca3af">:~$ </span>
+    <span style="color:#9ca3af">[session started | type </span>
+    <span class="highlight">help</span>
+    <span style="color:#9ca3af"> to begin]</span>
+  </div>
+  <div id="output"></div>
+  <div class="input-line">
+    <span class="prompt">sergio@ml-systems</span>
+    <span style="color:#9ca3af">:</span>
+    <span class="path">~</span>
+    <span style="color:#9ca3af">$</span>
+    <input type="text" id="cmd" autocomplete="off" spellcheck="false" autofocus>
+  </div>
+</div>
+
+<script>
+const output = document.getElementById('output');
+const input = document.getElementById('cmd');
+const history = [];
+let histIdx = -1;
+
+// Paleta semántica para colorear
+const color = {
+  g: '#34d399', b: '#60a5fa', y: '#fbbf24', r: '#f87171', w: '#e5e7eb', d: '#9ca3af'
+};
+
+function c(text, col) { return `<span style="color:${col}">${text}</span>`; }
+
+const commands = {
+  help: () => `
+${c('COMANDOS DISPONIBLES', color.g)}
+${c('──────────────────────────────', color.d)}
+  ${c('whoami', color.b)}     Identidad profesional
+  ${c('problem', color.b)}    El cuello de botella que resuelvo
+  ${c('stack', color.b)}      Stack técnico completo
+  ${c('metrics', color.b)}    Benchmarks de producción reales
+  ${c('projects', color.b)}   Proyectos destacados
+  ${c('origin', color.b)}     Mi background en redes críticas
+  ${c('philosophy', color.b)} Principios de ingeniería
+  ${c('contact', color.b)}    Canales de contacto
+  ${c('install', color.b)}    Cómo integrarme al equipo
+  ${c('clear', color.b)}      Limpiar terminal
+  ${c('source', color.b)}     Ver código fuente
+
+Tip: ${c('↑/↓', color.y)} para historial, ${c('Tab', color.y)} para autocompletar.`,
+
+  whoami: () => `
+${c('👤 SERGIO FRANCISCO RIVERA BUSTAMANTE', color.g)}
+${c('ML-Systems-Engineer', color.b)}
+
+"${c('Los modelos mueren en Jupyter. Yo construyo la infraestructura para que sobrevivan en el metal.', color.w)}"`,
+
+  problem: () => `
+${c('⚠️  THE PROBLEM', color.r)}
+${c('──────────────────────────────', color.d)}
+La Ciencia de Datos en producción tiene un cuello de botella ${c('invisible', color.y)}:
+
+  • Fragmentación del heap de ${c('CPython', color.r)}
+  • Inferencia ineficiente
+  • Pipelines que saturan RAM
+  • Costos cloud descontrolados
+
+Optimizar precisión ${c('+2%', color.y)} no sirve de nada si el pipeline
+dispara los costos de cómputo.`,
+
+  stack: () => `
+${c('📦 CORE DEPENDENCIES', color.g)}
+${c('──────────────────────────────', color.d)}
+
+${c('Bare-Metal & Performance', color.b)}
+  <span class="tree">├──</span> Rust, PyO3
+  <span class="tree">├──</span> SIMD (AVX2/SSE)
+  <span class="tree">└──</span> Zero-Copy
+
+${c('Orchestration & Backend', color.b)}
+  <span class="tree">├──</span> Python, Axum, FastAPI
+  <span class="tree">├──</span> Tokio
+  <span class="tree">└──</span> ZenML
+
+${c('Infrastructure & SRE', color.b)}
+  <span class="tree">├──</span> K8s, Prometheus
+  <span class="tree">├──</span> CI/CD
+  <span class="tree">└──</span> SSH, AI Agents`,
+
+  metrics: () => `
+${c('📊 PRODUCTION BENCHMARKS', color.g)}
+${c('(números reales, no promesas)', color.d)}
+${c('──────────────────────────────', color.d)}
+
+${c('🧠 Memory Optimization', color.b)}
+   <span class="metric-num">87%</span> reducción RSS
+   ${c('3.93 MB → 0.50 MB', color.y)} en pipelines de visión
+   Stack: fast_image_resize + PyO3
+
+${c('⏱️  Latency', color.b)}
+   <span class="metric-num">&lt;5ms p99</span> en validación alertas SRE
+   Motor nativo en Rust
+
+${c('🚀 Throughput', color.b)}
+   <span class="metric-num">+10,000</span> alerts/sec ingesta asíncrona
+   Stack: Axum + Tokio
+
+${c('✅ Integrity', color.b)}
+   MSE <span class="metric-num">3.37e-05</span>
+   Equivalencia numérica certificada
+   ResNet50 para entornos clínicos`,
+
+  projects: () => `
+${c('🗂️ PROYECTOS DESTACADOS', color.g)}
+${c('──────────────────────────────', color.d)}
+
+${c('[1] ResNet50 Clínico Optimizado', color.b)}
+    • Equivalencia numérica certificada (MSE 3.37e-05)
+    • 87% reducción memoria RSS
+    • Apto para entornos clínicos regulados
+
+${c('[2] Motor SRE Nativo en Rust', color.b)}
+    • Latencia <5ms p99
+    • Validación +10k alertas/segundo
+    • Zero-copy en pipelines críticos
+
+${c('[3] Pipeline Vision Zero-Copy', color.b)}
+    • PyO3 + fast_image_resize
+    • SIMD AVX2/SSE para inferencia
+    • 87% menos memoria vs. Python puro`,
+
+  origin: () => `
+${c('⚙️ SYSTEM ARCHITECTURE (Mi Origen)', color.g)}
+${c('──────────────────────────────', color.d)}
+
+${c('Base:', color.b)} Ingeniería de Redes Críticas
+       CCNP, Juniper
+
+${c('Mentalidad:', color.b)} Latencia, concurrencia, alta disponibilidad
+
+${c('Hoy:', color.b)} Aplico mentalidad SRE al Machine Learning
+      en la intersección: ${c('experimentación ↔ bare-metal', color.y)}`,
+
+  philosophy: () => `
+${c('🎯 FILOSOFÍA DE INGENIERÍA', color.g)}
+${c('──────────────────────────────', color.d)}
+
+1. El código en producción debe ser ${c('medible', color.y)}, no mágico.
+
+2. La eficiencia es un ${c('feature', color.y)}, no una optimización.
+
+3. Los modelos sin infraestructura son ${c('prototipos', color.r)},
+   no productos.
+
+4. El cuello de botella más peligroso es el que
+   ${c('no puedes observar', color.r)}.`,
+
+  contact: () => `
+${c('📡 CANALES DE CONTACTO', color.g)}
+${c('──────────────────────────────', color.d)}
+
+  Email:    ${c('[sergioskhy@gmail.com]', color.b)}
+  GitHub:   ${c('[github.com/Sergius-DS]', color.b)}
+  LinkedIn: ${c('[linkedin.com/in/sergio-francisco-rivera-bustamante]', color.b)}
+
+${c('Para una charla técnica:', color.y)}
+  $ ${c('run "schedule-interview"', color.g)}`,
+
+  install: () => `
+${c('💻 INSTALACIÓN', color.g)}
+${c('──────────────────────────────', color.d)}
+
+  ${c('$', color.d)} cargo build --release
+
+${c('✓', color.g)} Listo para reducir costos cloud
+${c('✓', color.g)} Automatizar SRE con Agentes IA
+${c('✓', color.g)} Llevar modelos a producción real`,
+
+  source: () => `
+${c('📄 CÓDIGO FUENTE', color.g)}
+${c('──────────────────────────────', color.d)}
+
+Esta terminal es ${c('100% Vanilla JS', color.y)} — cero dependencias.
+Escrita a mano para demostrar que entiendo:
+
+  • Performance del DOM
+  • Sin runtime overhead de frameworks
+  • Build = ${c('0 bytes', color.y)} de JavaScript externo
+
+El equivalente web a un ${c('binario compilado en Rust', color.b)}.
+
+Repositorio: ${c('github.com/tu-usuario/tu-usuario.github.io', color.b)}`,
+
+  clear: () => { output.innerHTML = ''; return null; },
+
+  'schedule-interview': () => `
+${c('🗓️ INICIANDO HANDSHAKE...', color.g)}
+${c('──────────────────────────────', color.d)}
+
+Conectando con la agenda de Sergio...
+${c('✓', color.g)} Calendly abierto.
+Elige un slot de 30 min para charla técnica.
+
+${c('→', color.b)} [calendly.com/tu-usuario]`,
+
+  sudo: () => `
+${c('❌ Permission denied', color.r)}
+Nice try. Este sistema es read-only.`,
+
+  ls: () => `
+${c('drwxr-xr-x', color.d)} portfolio/
+${c('drwxr-xr-x', color.d)} benchmarks/
+${c('-rw-r--r--', color.d)} cv_sergio_rivera.pdf
+${c('-rw-r--r--', color.d)} resnet50_clinical_benchmark.json`,
+
+  cat: () => `${c('Usage:', color.y)} cat [filename]\nPrueba: ${c('cat cv_sergio_rivera.pdf', color.b)} (próximamente)`,
+
+  'cat cv_sergio_rivera.pdf': () => `
+${c('📄 cv_sergio_rivera.pdf', color.g)}
+${c('──────────────────────────────', color.d)}
+Descarga directa: ${c('[enlace-a-tu-cv.pdf]', color.b)}
+
+Contenido: ${c('1 página', color.y)} | ${c('Métricas reales', color.y)} | ${c('Sin buzzwords vacías', color.y)}`,
+
+  exit: () => `
+${c('⚠️  No hay escape de este sistema.', color.y)}
+Los modelos mueren en Jupyter. Yo construyo la infraestructura.
+Type ${c('help', color.g)} para continuar explorando.`
+};
+
+function print(html) {
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = html;
+  output.appendChild(div);
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+function execute(cmd) {
+  const c = cmd.trim().toLowerCase();
+  if (!c) return;
+
+  // Eco del comando
+  print(`<span class="prompt">sergio@ml-systems</span><span style="color:${color.d}">:</span><span class="path">~</span><span style="color:${color.d}">$</span> <span class="cmd-echo">${cmd}</span>`);
+
+  // Guardar historial
+  if (history[history.length - 1] !== cmd) history.push(cmd);
+  histIdx = history.length;
+
+  // Ejecutar
+  if (commands[c]) {
+    const result = commands[c]();
+    if (result) print(result);
+  } else if (c.startsWith('run ')) {
+    const sub = c.substring(4);
+    if (commands[sub]) {
+      const result = commands[sub]();
+      if (result) print(result);
+    } else {
+      print(`<span class="error">run: target "${sub}" not found. Type "help".</span>`);
+    }
+  } else {
+    print(`<span class="error">command not found: ${c}</span>\n<span style="color:${color.d}">Type </span><span class="highlight">help</span><span style="color:${color.d}"> for available commands.</span>`);
+  }
+}
+
+// Entrada
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    execute(input.value);
+    input.value = '';
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
+    else { histIdx = history.length; input.value = ''; }
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    const matches = Object.keys(commands).filter(k => k.startsWith(input.value.toLowerCase()));
+    if (matches.length === 1) input.value = matches[0];
+    else if (matches.length > 1) print(`Sugerencias: ${matches.join(', ')}`);
+  }
+});
+
+// Mantener focus siempre en el input
+document.addEventListener('click', () => input.focus());
+
+// Boot sequence
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    print(`<span class="info">[boot]</span> ML-Systems terminal v1.0.0`);
+    print(`<span class="info">[boot]</span> Kernel: Vanilla JS | Build: static`);
+    print(`<span class="info">[boot]</span> ${c('Ready.', color.g)} Type ${c('help', color.y)} to explore Sergio's profile.\n`);
+  }, 200);
+});
+</script>
+</body>
+</html>
