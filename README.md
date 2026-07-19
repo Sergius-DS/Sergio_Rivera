@@ -6,6 +6,11 @@ Este no es un portafolio tradicional — es una **terminal interactiva** que ref
 
 Escribe `help` dentro de la terminal para explorar mi stack, benchmarks de producción, y background en redes críticas.
 
+# <h1 align="center">Preview de Terminal Interactiva</h1>
+<p align="center">
+  <img src="preview.png"  height="400">
+<p align="center">
+
 ### 🚀 System Access
 Para acceder al perfil interactivo, ejecuta el siguiente comando:
 
